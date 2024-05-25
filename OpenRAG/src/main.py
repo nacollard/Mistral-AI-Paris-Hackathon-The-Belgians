@@ -24,15 +24,22 @@ from openrag.vectordb.milvus_adapter import init_milvus_connection
 from openrag.vectordb.store_vectors import create_collection_schema, store_vectors
 from tqdm import tqdm
 import requests
+from docx2pdf import convert
 
 print("OpenRAG is running...")
 
 directory_path = "Data/Internal/Company StIT"
-file_extensions = ['.docx']
+file_extensions = ['.pdf']
             
 vectors = []
 sources = []
 global_indexing = dict()
+
+for filename in tqdm(os.listdir(directory_path), desc="Converting DOCX to PDF"):
+    file_path = os.path.join(directory_path, filename)
+    if filename.endswith('.docx'):
+        file_path = file_path.replace('.docx', '.pdf')
+        filename = filename.replace('.docx', '.pdf')
 
 # Loop over every file in the directory
 for filename in os.listdir(directory_path):
@@ -41,13 +48,13 @@ for filename in os.listdir(directory_path):
         
         print(f"Processing file: {filename}")
 
-        pages_text = text_extraction.extract_docx_text(file_path)
+        pages_text = text_extraction.extract_pdf_text(file_path)
         processed_text = [text_extraction.preprocess_text(page) for page in pages_text]
         data = [{"text": text, "page": index + 1} for index, text in enumerate(pages_text)]
         pages = [(entry["text"], entry["page"]) for entry in data]
         chunks = text_chunking.overlapping_chunking(pages, text_chunking.CHUNK_SIZE_TOKENS_MIN, text_chunking.CHUNK_SIZE_TOKENS_MAX, text_chunking.OVERLAP_SIZE_TOKENS)
 
-        json_filename = filename.replace('.docx', '_chunks.json')
+        json_filename = filename.replace('.pdf', '_chunks.json')
         json_file_path = os.path.join(directory_path, json_filename)
         with open(json_file_path, "w") as f:
             json.dump(chunks, f)
