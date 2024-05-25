@@ -1,1 +1,132 @@
-{"BILAN FINANCIER POUR STIT POUR LES ANN\u00c9ES 2022, 2023 ET 2024": {"len": 5, "start": 0, "end": 4}, "BUSINESS MODEL DE STIT": {"len": 6, "start": 5, "end": 10}, "CODE OF CONDUCT FOR STIT": {"len": 3, "start": 11, "end": 13}, "CULTURE BOOK FOR STIT": {"len": 4, "start": 14, "end": 17}, "PLAN DE D\u00c9VELOPPEMENT STRAT\u00c9GIQUE SUR 8 ANS POUR STIT": {"len": 5, "start": 18, "end": 22}, "PLAN FINANCIER POUR LE PLAN STRAT\u00c9GIQUE DE 8 ANS POUR STIT": {"len": 6, "start": 23, "end": 28}, "PLAN STRAT\u00c9GIQUE ANNUEL DE STIT POUR L": {"len": 7, "start": 29, "end": 35}, "PRODUITS ET SERVICES DE STIT": {"len": 4, "start": 36, "end": 39}, "SALARY POLICY FOR STIT": {"len": 6, "start": 40, "end": 45}, "STIT BRANDING": {"len": 3, "start": 46, "end": 48}, "STIT'S MARKETING ON LINKEDIN AND INSTAGRAM": {"len": 2, "start": 49, "end": 50}, "STIT'S SOCIAL AND ENVIRONMENTAL RESPONSIBILITY": {"len": 4, "start": 51, "end": 54}, "CV ALEXANDRE DURAND": {"len": 4, "start": 55, "end": 58}, "CV EMILY JOHNSON": {"len": 3, "start": 59, "end": 61}, "CV FRAN\u00c7OIS ROUSSEAU": {"len": 4, "start": 62, "end": 65}, "CV ISABELLE LECLERC": {"len": 4, "start": 66, "end": 69}, "CV JAMAL LAMAJ": {"len": 3, "start": 70, "end": 72}, "CV JANE SMITH": {"len": 3, "start": 73, "end": 75}, "CV JEAN MASSART": {"len": 4, "start": 76, "end": 79}, "CV JEANNE D'ARC": {"len": 4, "start": 80, "end": 83}, "CV JOHN SENIOR": {"len": 3, "start": 84, "end": 86}, "CV LAURENT BERNARD": {"len": 3, "start": 87, "end": 89}, "CV MICHAEL ADAMS": {"len": 3, "start": 90, "end": 92}, "CV PIERRE LECLERC": {"len": 4, "start": 93, "end": 96}, "CV SOPHIE MOREAU": {"len": 3, "start": 97, "end": 99}, "CV THOMAS LEF\u00c8VRE": {"len": 4, "start": 100, "end": 103}}
+{
+    "BILAN FINANCIER POUR STIT POUR LES ANN\u00c9ES 2022, 2023 ET 2024": {
+        "len": 5,
+        "start": 0,
+        "end": 4
+    },
+    "BUSINESS MODEL DE STIT": {
+        "len": 6,
+        "start": 5,
+        "end": 10
+    },
+    "CODE OF CONDUCT FOR STIT": {
+        "len": 3,
+        "start": 11,
+        "end": 13
+    },
+    "CULTURE BOOK FOR STIT": {
+        "len": 4,
+        "start": 14,
+        "end": 17
+    },
+    "PLAN DE D\u00c9VELOPPEMENT STRAT\u00c9GIQUE SUR 8 ANS POUR STIT": {
+        "len": 5,
+        "start": 18,
+        "end": 22
+    },
+    "PLAN FINANCIER POUR LE PLAN STRAT\u00c9GIQUE DE 8 ANS POUR STIT": {
+        "len": 6,
+        "start": 23,
+        "end": 28
+    },
+    "PLAN STRAT\u00c9GIQUE ANNUEL DE STIT POUR L": {
+        "len": 7,
+        "start": 29,
+        "end": 35
+    },
+    "PRODUITS ET SERVICES DE STIT": {
+        "len": 4,
+        "start": 36,
+        "end": 39
+    },
+    "SALARY POLICY FOR STIT": {
+        "len": 6,
+        "start": 40,
+        "end": 45
+    },
+    "STIT BRANDING": {
+        "len": 3,
+        "start": 46,
+        "end": 48
+    },
+    "STIT'S MARKETING ON LINKEDIN AND INSTAGRAM": {
+        "len": 2,
+        "start": 49,
+        "end": 50
+    },
+    "STIT'S SOCIAL AND ENVIRONMENTAL RESPONSIBILITY": {
+        "len": 4,
+        "start": 51,
+        "end": 54
+    },
+    "CV ALEXANDRE DURAND": {
+        "len": 4,
+        "start": 55,
+        "end": 58
+    },
+    "CV EMILY JOHNSON": {
+        "len": 3,
+        "start": 59,
+        "end": 61
+    },
+    "CV FRAN\u00c7OIS ROUSSEAU": {
+        "len": 4,
+        "start": 62,
+        "end": 65
+    },
+    "CV ISABELLE LECLERC": {
+        "len": 4,
+        "start": 66,
+        "end": 69
+    },
+    "CV JAMAL LAMAJ": {
+        "len": 3,
+        "start": 70,
+        "end": 72
+    },
+    "CV JANE SMITH": {
+        "len": 3,
+        "start": 73,
+        "end": 75
+    },
+    "CV JEAN MASSART": {
+        "len": 4,
+        "start": 76,
+        "end": 79
+    },
+    "CV JEANNE D'ARC": {
+        "len": 4,
+        "start": 80,
+        "end": 83
+    },
+    "CV JOHN SENIOR": {
+        "len": 3,
+        "start": 84,
+        "end": 86
+    },
+    "CV LAURENT BERNARD": {
+        "len": 3,
+        "start": 87,
+        "end": 89
+    },
+    "CV MICHAEL ADAMS": {
+        "len": 3,
+        "start": 90,
+        "end": 92
+    },
+    "CV PIERRE LECLERC": {
+        "len": 4,
+        "start": 93,
+        "end": 96
+    },
+    "CV SOPHIE MOREAU": {
+        "len": 3,
+        "start": 97,
+        "end": 99
+    },
+    "CV THOMAS LEF\u00c8VRE": {
+        "len": 4,
+        "start": 100,
+        "end": 103
+    }
+}
