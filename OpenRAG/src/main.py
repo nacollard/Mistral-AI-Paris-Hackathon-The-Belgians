@@ -28,53 +28,58 @@ from docx2pdf import convert
 
 print("OpenRAG is running...")
 
-directory_path = "Data/Internal/Company StIT"
+directory_path = "Data/Internal"
 file_extensions = ['.pdf']
             
 vectors = []
 sources = []
 global_indexing = dict()
 
-for filename in tqdm(os.listdir(directory_path), desc="Converting DOCX to PDF"):
-    file_path = os.path.join(directory_path, filename)
-    if filename.endswith('.docx'):
-        file_path = file_path.replace('.docx', '.pdf')
-        filename = filename.replace('.docx', '.pdf')
+# for dirpath, dirnames, filenames in os.walk(directory_path):
+#     for filename in filenames:
+#         if filename.endswith('.docx'):
+#             docx_path = os.path.join(dirpath, filename)
+#             pdf_path = docx_path.replace('.docx', '.pdf')
+#             convert(docx_path, pdf_path)
 
 # Loop over every file in the directory
-for filename in os.listdir(directory_path):
-    if any(filename.endswith(ext) for ext in file_extensions):
-        file_path = os.path.join(directory_path, filename)
-        
-        print(f"Processing file: {filename}")
+for dirpath, dirnames, filenames in os.walk(directory_path):
+    for filename in filenames:
+        if any(filename.endswith(ext) for ext in file_extensions):
+            file_path = os.path.join(dirpath, filename)
+            
+            print(f"Processing file: {filename}")
 
-        pages_text = text_extraction.extract_pdf_text(file_path)
-        processed_text = [text_extraction.preprocess_text(page) for page in pages_text]
-        data = [{"text": text, "page": index + 1} for index, text in enumerate(pages_text)]
-        pages = [(entry["text"], entry["page"]) for entry in data]
-        chunks = text_chunking.overlapping_chunking(pages, text_chunking.CHUNK_SIZE_TOKENS_MIN, text_chunking.CHUNK_SIZE_TOKENS_MAX, text_chunking.OVERLAP_SIZE_TOKENS)
+            pages_text = text_extraction.extract_pdf_text(file_path)
+            processed_text = [text_extraction.preprocess_text(page) for page in pages_text]
+            data = [{"text": text, "page": index + 1} for index, text in enumerate(pages_text)]
+            pages = [(entry["text"], entry["page"]) for entry in data]
+            chunks = text_chunking.overlapping_chunking(pages, text_chunking.CHUNK_SIZE_TOKENS_MIN, text_chunking.CHUNK_SIZE_TOKENS_MAX, text_chunking.OVERLAP_SIZE_TOKENS)
 
-        json_filename = filename.replace('.pdf', '_chunks.json')
-        json_file_path = os.path.join(directory_path, json_filename)
-        with open(json_file_path, "w") as f:
-            json.dump(chunks, f)
+            json_filename = filename.replace('.pdf', '_chunks.json')
+            json_file_path = os.path.join(dirpath, json_filename)
+            with open(json_file_path, "w") as f:
+                json.dump(chunks, f)
 
-        index_data = dict()
-        index_data["len"] = len(chunks)
-        index_data["start"] = len(vectors)
+            index_data = dict()
+            index_data["len"] = len(chunks)
+            index_data["start"] = len(vectors)
 
-        chunks = [chunk['text'] for chunk in chunks.values()]
+            chunks = [chunk['text'] for chunk in chunks.values()]
 
-        for chunk in tqdm(chunks, desc="Vectorizing chunks"):
-            vectorizer = chunk_vectorization.MistralVectorizer()
-            vectorized_text = vectorizer.vectorize(chunk)
-            vectors.append(vectorized_text)
-            sources.append("Internal")
+            for chunk in tqdm(chunks, desc="Vectorizing chunks"):
+                vectorizer = chunk_vectorization.MistralVectorizer()
+                vectorized_text = vectorizer.vectorize(chunk)
+                vectors.append(vectorized_text)
+                if dirpath == "Data/Internal\HR":
+                    sources.append("HR")
+                else:
+                    sources.append("Internal")
 
-        index_data["end"] = len(vectors) - 1
+            index_data["end"] = len(vectors) - 1
 
-        global_indexing_key = filename.split('.')[0].upper()
-        global_indexing[global_indexing_key] = index_data
+            global_indexing_key = filename.split('.')[0].upper()
+            global_indexing[global_indexing_key] = index_data
 
 print("Processing complete.")
     
