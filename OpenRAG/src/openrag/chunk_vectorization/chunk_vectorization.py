@@ -16,6 +16,7 @@ See the LICENSE file in the root directory of this project for details.
 """
 
 from tqdm import tqdm
+import os
 import time
 from ..utils import azure_storage_handler as azure_handler
 
@@ -78,13 +79,34 @@ class ADAVectorizer(Vectorizer):
             encoding_format="float"
         )
         return response.data
+    
+# Mistral vectorizer
+class MistralVectorizer(Vectorizer):
+    def __init__(self):
+        from mistralai.client import MistralClient
+        self.client = MistralClient(api_key=os.environ["MISTRAL_API_KEY"])
+    
+    def vectorize(self, text):
+        response = self.client.embeddings(
+            model="mistral-embed",
+            input=[text]
+        )
+        return response.data[0].embedding
+    
+    def vectorize_array(self, text_array):
+        response = self.client.embeddings(
+            model="mistral-embed",
+            input=text_array
+        )
+        return response.data
 
 def get_vectorizer(vectorizer_type):
     vectorizers = {
         'tfidf': TFIDFVectorizer,
         'word2vec': Word2VecVectorizer,
         'bert': BERTVectorizer,
-        'ada': ADAVectorizer
+        'ada': ADAVectorizer,
+        'mistral': MistralVectorizer
     }
     return vectorizers[vectorizer_type]()
 

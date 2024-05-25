@@ -25,6 +25,21 @@ import fitz
 import re
 from tqdm import tqdm
 from ..utils import azure_storage_handler as azure_storage_handler
+from docx import Document
+
+def extract_docx_text(file_name):
+    """
+    Extract text from a DOCX file using python-docx.
+
+    Args:
+        file_name (str): The name of the DOCX file to extract text from.
+
+    Returns:
+        list: A list of strings, where each string is the text of a paragraph.
+    """
+    docx_document = Document(file_name)
+    paragraphs_text = [paragraph.text for paragraph in docx_document.paragraphs]
+    return paragraphs_text
 
 def extract_pdf_text(file_name):
     """
@@ -36,7 +51,7 @@ def extract_pdf_text(file_name):
     Returns:
         list: A list of strings, where each string is the text of a page.
     """
-    pdf_document = fitz.open("pdf", azure_storage_handler.get_raw_pdf(file_name)) # type: ignore
+    pdf_document = fitz.open(file_name)
     pages_text = [pdf_document.load_page(page_number).get_text() for page_number in tqdm(range(len(pdf_document)), desc="Extracting")]
     pdf_document.close()
     return pages_text
