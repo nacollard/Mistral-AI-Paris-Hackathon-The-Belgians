@@ -2,41 +2,20 @@ from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 from dotenv import load_dotenv
 from docx import Document
-import xml.etree.ElementTree as ET
 from OpenRAG.src.openrag.chunk_vectorization.chunk_vectorization import get_vectorizer
 from OpenRAG.src.openrag.vectordb.milvus_adapter import init_milvus_connection
 from pymilvus import Collection
+from requests.exceptions import HTTPError, Timeout, ConnectionError
 import os
 import json
 import re
+import requests
 import xml.etree.ElementTree as ET
 
 load_dotenv()  # take environment variables from .env.
 
 
-'''
-def xml_retriever(xml_response, tag, default=None):
-    """
-    Retrieve the content between the specified XML tags.
-
-    Args:
-        xml_response (str): The XML response.
-        tag (str): The XML tag to retrieve the content from.
-        default (optional): The value to return if the tag is not found.
-
-    Returns:
-        str or default: The content between the specified XML tags or the default value.
-    """
-    try:
-        start_tag = f"<{tag}>"
-        end_tag = f"</{tag}>"
-        start_index = xml_response.index(start_tag) + len(start_tag)
-        end_index = xml_response.index(end_tag, start_index)
-        return xml_response[start_index:end_index]
-    except ValueError:
-        return default
-'''
-def xml_retriever(xml_response, tag, default=None):
+def get_xml_element_text(xml_response, tag, default=None):
     """
     Retrieve the content between the specified XML tags.
 
@@ -58,7 +37,7 @@ def xml_retriever(xml_response, tag, default=None):
     except ET.ParseError:
         return default
 
-def send_request_to_mistral_ai(model, messages):
+def send_request_to_mistral_ai_model(model, messages):
     """
     Send a request to the Mistral AI model and return the response.
 
@@ -82,8 +61,17 @@ def send_request_to_mistral_ai(model, messages):
 
         response = chat_response.choices[0].message.content
         return response
+    except HTTPError as e:
+        print(f"Error in Mistral AI request: HTTPError ({e})")
+        return None
+    except Timeout as e:
+        print(f"Error in Mistral AI request: Timeout ({e})")
+        return None
+    except ConnectionError as e:
+        print(f"Error in Mistral AI request: ConnectionError ({e})")
+        return None
     except Exception as e:
-        print(f"Error in Mistral AI request: {e}")
+        print(f"Error in Mistral AI request: Unexpected error ({e})")
         return None
 
 
@@ -102,8 +90,8 @@ def load_company_knowledge():
     company_docs = [business_model, long_term_strategy, products_and_services]
     company_knowledge = ""
 
-    for doc in company_docs:
-        docx_document = Document(doc)
+    for document_path in company_docs:
+        docx_document = Document(document_path)
         paragraphs_text = " ".join(
             [paragraph.text for paragraph in docx_document.paragraphs]
         )
@@ -174,9 +162,9 @@ def create_prompt_analyst_agent(context, company_knowledge, type):
 
 def create_prompt_strategy_agent(context, stretegic_info):
     prompt = f"""
-                You are an experienced strategic consultant. 
-                I will provide you with some context about a situation and the employee you have to advice. I'll also provide you strategic information about the company. 
-                Your task is to build a quick action plan for the employee the message is addressed to, on how they can best tackle the matter to help the company based on their experience and position in the company. 
+                You are an experienced strategic consultant.
+                I will provide you with some context about a situation and the employee you have to advice. I'll also provide you strategic information about the company.
+                Your task is to build a quick action plan for the employee the message is addressed to, on how they can best tackle the matter to help the company based on their experience and position in the company.
 
                 Here is the context with the employee you have to advice and information about the situation:
                 <context>{context}</context>
@@ -208,7 +196,7 @@ def strategy_agent(context, employee):
 
     model = "mistral-large-latest"
 
-    response = send_request_to_mistral_ai(model, messages)
+    response = send_request_to_mistral_ai_model(model, messages)
     print("Strategic advisor response: ", response)
     return response
 
@@ -238,11 +226,11 @@ def analyst_agent(context, type):
         ),
     ]
 
-    xml_response = send_request_to_mistral_ai(model, messages)
+    xml_response = send_request_to_mistral_ai_model(model, messages)
 
-    priority_level = xml_retriever(xml_response, "priority_level")
-    justification = xml_retriever(xml_response, "justification")
-    main_topic = xml_retriever(xml_response, "main_topic")
+    priority_level = get_xml_element_text(xml_response, "priority_level")
+    justification = get_xml_element_text(xml_response, "justification")
+    main_topic = get_xml_element_text(xml_response, "main_topic")
 
     print("Priority Level: ", priority_level)
     print("Justification: ", justification)
@@ -271,28 +259,29 @@ def create_prompt_dispatch_agent(main_topic, justification, CVs):
         str: The prompt for the Mistral AI model.
     """
 
-    prompt = f"""
-                You are a senior executive at StIT, and you have been tasked with identifying the employees who should be informed about a specific matter based on their expertise and role within the company.
-                Please thoroughly read and analyze the following matter:
-
+    prompt = f""" You are a senior executive at StIT. Your task is to identify and rank employees based on their relevance to a specific matter, considering their expertise and roles.
+                Read and analyze the matter:
                 <matter>{main_topic} {justification}</matter>
-                Now read carefully the CVs of the following employees and rank them in order of relevance to the matter:
+
+                Next, review the CVs of the employees:
                 <CVs>{CVs}</CVs>
-                In the <output> section, write down the names of the employees who are relevant to contact for this matter. Carefully consider how the main points and key details of this matter relate to the provided CVs and job titles at StIT to select the relevant employees.
 
-                After completing your analysis, provide your final assessment in the <output> section, using the following format:
+                In the <output> section, list the names of the relevant employees in order of relevance. Ensure that the main points and key details of the matter align with the provided CVs and job titles at StIT.
 
+                Use the following format for your final assessment:
                 <output>
-                <total>NUMBER</total> 
-                <employee1>NAME_EMPLOYEE1</employee1> 
+                <total>NUMBER</total>
+                <employee1>NAME_EMPLOYEE1</employee1>
                 <employee2>NAME_EMPLOYEE2</employee2>
                 <employee3>NAME_EMPLOYEE3</employee3>
                 <employee4>NAME_EMPLOYEE4</employee4>
                 <employee5>NAME_EMPLOYEE5</employee5>
                 </output>
-                In the <total> tag, write down the number of employees that you judge enough to be informed about the matter. In the <employeeN> tags, write down the names of the employees that you have selected, in order of relevance. If no employee is relevant, please write "None" in the <total> tag.
 
-                Remember, your goal is to help company management quickly identify and prioritize the employees to inform about the matter, so be sure to consider the key implications and potential impact of the matter on the company in your selection of relevant profiles to inform about it. Also, keep in mind that the employees receive push notifications, so it doesn't make sense to inform too many of them if not relevant for all of them to get informed.
+                In the <total> tag, specify the number of employees to be informed. In the <employeeN> tags, provide the names of the selected employees. If no employee is relevant, write "None" in the <total> tag.
+
+                Your goal is to help management quickly identify and prioritize employees to inform. Consider the implications and potential impact of the matter on the company. Remember, employees receive push notifications, so only include those who are truly relevant.
+                Do not provide any additional information or context beyond the total employees to inform and their names. Do not justify your choices, only give back the output section previously defined.
                 """
     return prompt
 
@@ -338,7 +327,7 @@ def dispatch_agent(main_topic, justification):
 
     model = "mistral-large-latest"
 
-    employees_to_inform = send_request_to_mistral_ai(model, messages)
+    employees_to_inform = send_request_to_mistral_ai_model(model, messages)
     pattern = r"<output>.*</output>"
     print("Employees to inform: ", employees_to_inform)
     try:
@@ -445,7 +434,7 @@ news_article4 = 'Data/External/News Articles/Massive cyberattack exposes the vul
 
 new_law1 = 'Data/External/Laws/New animal welfare law in France.docx' 
 new_law2 = 'Data/External/Laws/New data privacy law in France.docx' 
-new_law3 = 'Data/External/Laws/New environmental protection law in France.docx' 
+new_law3 = 'Data/External/Laws/New labor and employment law in France.docx' 
 new_law4 = 'Data/External/Laws/New cybersecurity and technology law in France.docx' 
             
 new_post1 = 'Data/External/Social Media/cybersecurity.docx' 
