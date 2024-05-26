@@ -4,7 +4,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Multi Agent App",
+  title: "L'agent",
 };
 
 export default function RootLayout({ children }) {
