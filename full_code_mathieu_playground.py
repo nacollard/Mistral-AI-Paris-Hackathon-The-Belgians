@@ -380,7 +380,26 @@ def routing_agent(context, type):
     model = "mistral-large-latest"
 
     response = send_request_to_mistral_ai_model(model, messages)
-    print("Routing advisor response: ", response)
+
+    # Regular expression pattern to match the agent number
+    pattern = '<agent_number>(\d+)</agent_number>'
+
+    # Search for the pattern in the input string and extract the agent number
+    match = re.search(pattern, response)
+    if match:
+        agent_number = match.group(1)
+        # print(f'The agent number is: {agent_number}')
+        if int(agent_number) == 1:
+            print("The news article will be dispatched to the dispatch agent.")
+            dispatch_agent(context, type)
+        elif int(agent_number) == 2:
+            print("The news article will be dispatched to the strategy agent.")
+            strategy_agent(context, type)
+        elif int(agent_number) == 3:
+            print("The news article will be dispatched to the analyst agent.")
+            analyst_agent(context, type)
+    else:
+        print('No agent number found in the input string')
     return response
 
 
@@ -547,17 +566,11 @@ if __name__ == "__main__":
     print("New Incoming Message: ")
     print("######################")
     routing_agent(news_article2, "news article")
-    analyst_agent(news_article2, "news article") 
-    #analyst_agent(news_article4, "news article") 
     print("######################")
     print("New Incoming Message: ")
     print("######################")
     routing_agent(new_law3, "law")
-    analyst_agent(new_law3, "law") 
-    #analyst_agent(new_law4, "law") 
     print("######################")
     print("New Incoming Message: ")
     print("######################")
     routing_agent(new_post1, "social media post")
-    analyst_agent(new_post1, "social media post") 
-    #analyst_agent(new_post4, "social media post")
