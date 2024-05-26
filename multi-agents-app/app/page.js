@@ -50,7 +50,7 @@ export default function Home() {
       setTimeout(() => {
         setWaiting(prev => prev.filter((item, index) => index != 0));
         setFound(false);
-      }, 5000);
+      }, 3000);
     } catch (error) {
       console.error('Failed to fetch data from API:', error);
     }

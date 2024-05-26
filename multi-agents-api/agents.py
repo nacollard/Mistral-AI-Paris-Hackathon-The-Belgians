@@ -164,7 +164,7 @@ def create_prompt_strategy_agent(context, stretegic_info):
     prompt = f"""
                 You are an experienced strategic consultant.
                 I will provide you with some context about a situation and the employee you have to advice. I'll also provide you strategic information about the company.
-                Your task is to build a quick action plan for the employee the message is addressed to, on how they can best tackle the matter to help the company based on their experience and position in the company.
+                Your task is to build a quick action plan in HTML format for the employee the message is addressed to, on how they can best tackle the matter to help the company based on their experience and position in the company.
 
                 Here is the context with the employee you have to advice and information about the situation:
                 <context>{context}</context>
@@ -174,12 +174,135 @@ def create_prompt_strategy_agent(context, stretegic_info):
 
                 First, take a moment to carefully read and understand the context, strategic information, and who is the employee you advice. Think through the key considerations and how the employee can best respond given the company's strategic priorities and his or her position. Write your thoughts in a <scratchpad> section.
 
-                Then, provide a short action plan with a few concrete steps the employee can follow to effectively address this situation in a way that aligns with and supports the company's strategy. Write the action plan inside <action_plan> tags.
+                Then, provide a short action plan in HTML format with a few concrete steps the employee can follow to effectively address this situation in a way that aligns with and supports the company's strategy. Write the action plan inside <action_plan> tags in HTML format.
 
-                The action plan should be concise and to-the-point, focusing on the most critical steps the employee should take. Aim for 3-5 key action items.
+                The action plan in HTML format should be concise and to-the-point, focusing on the most critical steps the employee should take. Aim for 3-5 key action items, don't forget to put it in HTML format.
 
                 Remember, your goal is to guide the employee on how to tackle this matter in a way that will best help the company achieve its strategic objectives, based on your understanding of the context, company strategy, and the specific situation described in the message.
                 """
+    return prompt
+
+
+def create_prompt_dispatch_agent(main_topic, justification, CVs):
+    """
+    Create the prompt for the Mistral AI model.
+
+    Args:
+        maint_topic (str): The main topic of the news article to analyze.
+        justification (str): The reason why the news article might be relevant to the company.
+        CVs (str): The CVs of the employees.
+
+    Returns:
+        str: The prompt for the Mistral AI model.
+    """
+
+    prompt = f""" You are a senior executive at StIT. Your task is to identify and rank employees based on their relevance to a specific matter, considering their expertise and roles.
+                Read and analyze the matter:
+                <matter>{main_topic} {justification}</matter>
+
+                Next, review the CVs of the employees:
+                <CVs>{CVs}</CVs>
+
+                In the <output> section, list the names of the relevant employees in order of relevance. Ensure that the main points and key details of the matter align with the provided CVs and job titles at StIT.
+
+                Use the following format for your final assessment:
+                <output>
+                <total>NUMBER</total>
+                <employee1>NAME_EMPLOYEE1</employee1>
+                <employee2>NAME_EMPLOYEE2</employee2>
+                <employee3>NAME_EMPLOYEE3</employee3>
+                <employee4>NAME_EMPLOYEE4</employee4>
+                <employee5>NAME_EMPLOYEE5</employee5>
+                </output>
+
+                In the <total> tag, specify the number of employees to be informed. In the <employeeN> tags, provide the names of the selected employees. If no employee is relevant, write "None" in the <total> tag.
+
+                Your goal is to help management quickly identify and prioritize employees to inform. Consider the implications and potential impact of the matter on the company. Remember, employees receive push notifications, so only include those who are truly relevant.
+                Do not provide any additional information or context beyond the total employees to inform and their names. Do not justify your choices, only give back the output section previously defined.
+                """
+    return prompt
+
+def create_prompt_routing_agent(context, type):
+    """
+    Create the prompt for the Mistral AI model.
+
+    Args:
+        article (str): The received information to route.
+
+    Returns:
+        str: The prompt for the Mistral AI model.
+    """
+    prompt = f"""
+                You are an AI agent tasked with routing incoming information to the appropriate specialized agent for handling. You will be provided with two key inputs:
+
+                <agents_resumes>
+                <Agent 1>
+                Designation: Agent 1
+
+                Capabilities:
+                Ability to analyze and understand complex matters
+                Proficient in reviewing and interpreting CVs
+                Capable of ranking employees based on their relevance to a specific matter
+
+                Tasks:
+                Identify and rank employees based on their relevance to a specific matter
+                Review and analyze the matter and the CVs of the employees
+                List the names of the relevant employees in order of relevance
+                Ensure that the main points and key details of the matter align with the provided CVs and job titles
+                Specify the number of employees to be informed
+                </Agent 1>
+                <Agent 2>
+                Designation: Agent 2
+
+                Capabilities:
+                Ability to understand and analyze complex situations
+                Proficient in creating action plans based on strategic information
+                Capable of guiding employees on how to tackle matters effectively
+
+                Tasks:
+                Build a quick action plan for the employee based on their experience and position in the company
+                Carefully read and understand the context, strategic information, and who the employee to be advised is
+                Write thoughts and key considerations in a scratchpad section
+                Provide a short action plan with a few concrete steps the employee can follow
+                Ensure that the action plan aligns with and supports the company's strategy
+                </Agent 2>
+                <Agent 3>
+                Designation: Agent 3
+
+                Capabilities:
+                Ability to analyze and understand various types of information
+                Proficient in determining the priority level of information based on its relevance to the company
+                Capable of providing a detailed justification for the priority rating
+
+                Tasks:
+                Determine the priority level of information based on its relevance to the company
+                Thoroughly read and analyze the provided information
+                Provide the final assessment in the output section
+                Ensure that the priority rating and justification consider the key implications and potential impact of the information on the company
+                Summarize the main topic of the information in one sentence 
+                </Agent 3>
+                </agents_resumes>
+
+                <incoming_information>
+                {type}:
+                {context}
+                </incoming_information>
+
+                Your task is to determine which agent is best suited to handle the incoming information based on their capabilities as described in their resumes. 
+
+                First, carefully review the resumes of each agent to gain a thorough understanding of their individual skills and areas of expertise. Pay close attention to any specialized knowledge, tools, or processes they are proficient in.
+
+                Next, analyze the incoming information to determine what specific capabilities would be required to appropriately address and handle that information. Consider factors such as the topic, which analysis phase of the received information we are in and the end goal of the information.
+
+                Once you have determined the necessary capabilities to treat the incoming information, refer back to the agents resumes to identify which agent is the best match based on their stated skills and expertise. The agent whose resume outlines the capabilities that most closely align with those required for the incoming information should be selected.
+
+                When you have identified the most appropriate agent, output only the number of that agent, with no other text or explanation. Enclose the agent number in <agent_number> tags like this:
+
+                <agent_number>3</agent_number>
+
+                Remember, the agent number should be the only output, with no other wording. Do not justify or explain your selection, simply provide the number of the most suitable agent based on matching the capabilities required for the incoming information to those outlined in the agents resumes.
+                """
+
     return prompt
 
 
@@ -247,44 +370,40 @@ def analyst_agent(context, type):
     return employees_to_inform, priority_level, main_topic, context, justification, type, strategy
 
 
-def create_prompt_dispatch_agent(main_topic, justification, CVs):
-    """
-    Create the prompt for the Mistral AI model.
+def routing_agent(context, type):
+    print("######################")
+    print("New Incoming Message: ")
+    print("######################")
+    prompt = create_prompt_routing_agent(context, type)
+    messages = [
+        ChatMessage(role="system", content=prompt),
+        ChatMessage(role="user", content="The incoming information : " + context),
+    ]
 
-    Args:
-        maint_topic (str): The main topic of the news article to analyze.
-        justification (str): The reason why the news article might be relevant to the company.
-        CVs (str): The CVs of the employees.
+    model = "mistral-large-latest"
 
-    Returns:
-        str: The prompt for the Mistral AI model.
-    """
+    response = send_request_to_mistral_ai_model(model, messages)
 
-    prompt = f""" You are a senior executive at StIT. Your task is to identify and rank employees based on their relevance to a specific matter, considering their expertise and roles.
-                Read and analyze the matter:
-                <matter>{main_topic} {justification}</matter>
+    # Regular expression pattern to match the agent number
+    pattern = '<agent_number>(\d+)</agent_number>'
 
-                Next, review the CVs of the employees:
-                <CVs>{CVs}</CVs>
-
-                In the <output> section, list the names of the relevant employees in order of relevance. Ensure that the main points and key details of the matter align with the provided CVs and job titles at StIT.
-
-                Use the following format for your final assessment:
-                <output>
-                <total>NUMBER</total>
-                <employee1>NAME_EMPLOYEE1</employee1>
-                <employee2>NAME_EMPLOYEE2</employee2>
-                <employee3>NAME_EMPLOYEE3</employee3>
-                <employee4>NAME_EMPLOYEE4</employee4>
-                <employee5>NAME_EMPLOYEE5</employee5>
-                </output>
-
-                In the <total> tag, specify the number of employees to be informed. In the <employeeN> tags, provide the names of the selected employees. If no employee is relevant, write "None" in the <total> tag.
-
-                Your goal is to help management quickly identify and prioritize employees to inform. Consider the implications and potential impact of the matter on the company. Remember, employees receive push notifications, so only include those who are truly relevant.
-                Do not provide any additional information or context beyond the total employees to inform and their names. Do not justify your choices, only give back the output section previously defined.
-                """
-    return prompt
+    # Search for the pattern in the input string and extract the agent number
+    match = re.search(pattern, response)
+    if match:
+        agent_number = match.group(1)
+        # print(f'The agent number is: {agent_number}')
+        if int(agent_number) == 1:
+            print("The news article will be dispatched to the dispatch agent.")
+            response = dispatch_agent(context, type)
+        elif int(agent_number) == 2:
+            print("The news article will be dispatched to the strategy agent.")
+            response = strategy_agent(context, type)
+        elif int(agent_number) == 3:
+            print("The news article will be dispatched to the analyst agent.")
+            response = analyst_agent(context, type)
+    else:
+        print('No agent number found in the input string')
+    return response
 
 
 def dispatch_agent(main_topic, justification):
@@ -446,18 +565,6 @@ new_post4 = 'Data/External/Social Media/coffee_and_snacks_lover.docx'
 company_information = load_company_knowledge()
 
 if __name__ == "__main__": 
-    print("######################")
-    print("New Incoming Message: ")
-    print("######################")
-    analyst_agent(news_article2, "news article") 
-    #analyst_agent(news_article4, "news article") 
-    print("######################")
-    print("New Incoming Message: ")
-    print("######################")
-    analyst_agent(new_law3, "law") 
-    #analyst_agent(new_law4, "law") 
-    print("######################")
-    print("New Incoming Message: ")
-    print("######################")
-    analyst_agent(new_post1, "social media post") 
-    #analyst_agent(new_post4, "social media post")
+    routing_agent(news_article2, "news article")
+    routing_agent(new_law3, "law")
+    routing_agent(new_post1, "social media post")
