@@ -222,78 +222,6 @@ def create_prompt_dispatch_agent(main_topic, justification, CVs):
                 """
     return prompt
 
-
-"""
-
-You are an AI agent tasked with routing incoming information to the appropriate specialized agent for handling. You will be provided with two key inputs:
-
-<agents_resumes>
-<Agent 1>
-Designation: Agent 1
-
-Capabilities:
-Ability to analyze and understand complex matters
-Proficient in reviewing and interpreting CVs
-Capable of ranking employees based on their relevance to a specific matter
-
-Tasks:
-Identify and rank employees based on their relevance to a specific matter
-Review and analyze the matter and the CVs of the employees
-List the names of the relevant employees in order of relevance
-Ensure that the main points and key details of the matter align with the provided CVs and job titles
-Specify the number of employees to be informed
-</Agent 1>
-<Agent 2>
-Designation: Agent 2
-
-Capabilities:
-Ability to understand and analyze complex situations
-Proficient in creating action plans based on strategic information
-Capable of guiding employees on how to tackle matters effectively
-
-Tasks:
-Build a quick action plan for the employee based on their experience and position in the company
-Carefully read and understand the context, strategic information, and who the employee to be advised is
-Write thoughts and key considerations in a scratchpad section
-Provide a short action plan with a few concrete steps the employee can follow
-Ensure that the action plan aligns with and supports the company's strategy
-</Agent 2>
-<Agent 3>
-Designation: Agent 3
-
-Capabilities:
-Ability to analyze and understand various types of information
-Proficient in determining the priority level of information based on its relevance to the company
-Capable of providing a detailed justification for the priority rating
-
-Tasks:
-Determine the priority level of information based on its relevance to the company
-Thoroughly read and analyze the provided information
-Provide the final assessment in the output section
-Ensure that the priority rating and justification consider the key implications and potential impact of the information on the company
-Summarize the main topic of the information in one sentence 
-</Agent 3>
-</agents_resumes>
-
-<incoming_information>
-{{INCOMING_INFORMATION}}
-</incoming_information>
-
-Your task is to determine which agent is best suited to handle the incoming information based on their capabilities as described in their resumes. 
-
-First, carefully review the resumes of each agent to gain a thorough understanding of their individual skills and areas of expertise. Pay close attention to any specialized knowledge, tools, or processes they are proficient in.
-
-Next, analyze the incoming information to determine what specific capabilities would be required to appropriately address and handle that information. Consider factors such as the topic, which analysis phase of the received information we are in and the end goal of the information.
-
-Once you have determined the necessary capabilities to treat the incoming information, refer back to the agents resumes to identify which agent is the best match based on their stated skills and expertise. The agent whose resume outlines the capabilities that most closely align with those required for the incoming information should be selected.
-
-When you have identified the most appropriate agent, output only the number of that agent, with no other text or explanation. Enclose the agent number in <agent_number> tags like this:
-
-<agent_number>3</agent_number>
-
-Remember, the agent number should be the only output, with no other wording. Do not justify or explain your selection, simply provide the number of the most suitable agent based on matching the capabilities required for the incoming information to those outlined in the agents resumes.
-"""
-
 def create_prompt_routing_agent(context, type):
     """
     Create the prompt for the Mistral AI model.
@@ -452,7 +380,26 @@ def routing_agent(context, type):
     model = "mistral-large-latest"
 
     response = send_request_to_mistral_ai_model(model, messages)
-    print("Routing advisor response: ", response)
+
+    # Regular expression pattern to match the agent number
+    pattern = '<agent_number>(\d+)</agent_number>'
+
+    # Search for the pattern in the input string and extract the agent number
+    match = re.search(pattern, response)
+    if match:
+        agent_number = match.group(1)
+        # print(f'The agent number is: {agent_number}')
+        if int(agent_number) == 1:
+            print("The news article will be dispatched to the dispatch agent.")
+            dispatch_agent(context, type)
+        elif int(agent_number) == 2:
+            print("The news article will be dispatched to the strategy agent.")
+            strategy_agent(context, type)
+        elif int(agent_number) == 3:
+            print("The news article will be dispatched to the analyst agent.")
+            analyst_agent(context, type)
+    else:
+        print('No agent number found in the input string')
     return response
 
 
@@ -619,17 +566,11 @@ if __name__ == "__main__":
     print("New Incoming Message: ")
     print("######################")
     routing_agent(news_article2, "news article")
-    analyst_agent(news_article2, "news article") 
-    #analyst_agent(news_article4, "news article") 
     print("######################")
     print("New Incoming Message: ")
     print("######################")
     routing_agent(new_law3, "law")
-    analyst_agent(new_law3, "law") 
-    #analyst_agent(new_law4, "law") 
     print("######################")
     print("New Incoming Message: ")
     print("######################")
     routing_agent(new_post1, "social media post")
-    analyst_agent(new_post1, "social media post") 
-    #analyst_agent(new_post4, "social media post")
