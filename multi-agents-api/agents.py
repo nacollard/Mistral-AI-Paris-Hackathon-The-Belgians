@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from OpenRAG.src.openrag.chunk_vectorization.chunk_vectorization import get_vectorizer
 from OpenRAG.src.openrag.vectordb.milvus_adapter import init_milvus_connection
 from pymilvus import Collection
+from docx import Document
 from requests.exceptions import HTTPError, Timeout, ConnectionError
 import os
 import json
@@ -442,8 +443,9 @@ new_post2 = 'Data/External/Social Media/space_travel.docx'
 new_post3 = 'Data/External/Social Media/startup_culture.docx' 
 new_post4 = 'Data/External/Social Media/coffee_and_snacks_lover.docx' 
             
+company_information = load_company_knowledge()
+
 if __name__ == "__main__": 
-    company_information = load_company_knowledge()
     print("######################")
     print("New Incoming Message: ")
     print("######################")

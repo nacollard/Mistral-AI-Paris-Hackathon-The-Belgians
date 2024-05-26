@@ -1,10 +1,10 @@
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 from dotenv import load_dotenv
-from docx import Document
 from OpenRAG.src.openrag.chunk_vectorization.chunk_vectorization import get_vectorizer
 from OpenRAG.src.openrag.vectordb.milvus_adapter import init_milvus_connection
 from pymilvus import Collection
+from docx import Document
 from requests.exceptions import HTTPError, Timeout, ConnectionError
 import os
 import json
@@ -237,13 +237,14 @@ def analyst_agent(context, type):
     print("Main Topic: ", main_topic)
 
     employees_to_inform = dispatch_agent(main_topic, justification)
+    strategy = "No strategy"
     if priority_level == "High":
          print("High priority level detected.")
          employee = employees_to_inform[0]
          print(f"/!\ Informing {employee} about the high priority {type}. /!\ ")
          context_to_pass = f"<employee_name>employee</employee_name>, <priority_level>High</priority_level>, <main_topic>{main_topic}</main_topic>, <justification>{justification}</justification>, <context>{context}</context>, <type>{type}</type>"
-         strategy_agent(context_to_pass, employee)
-    return employees_to_inform, priority_level, main_topic, context, justification, type
+         strategy = strategy_agent(context_to_pass, employee)
+    return employees_to_inform, priority_level, main_topic, context, justification, type, strategy
 
 
 def create_prompt_dispatch_agent(main_topic, justification, CVs):
@@ -442,8 +443,9 @@ new_post2 = 'Data/External/Social Media/space_travel.docx'
 new_post3 = 'Data/External/Social Media/startup_culture.docx' 
 new_post4 = 'Data/External/Social Media/coffee_and_snacks_lover.docx' 
             
+company_information = load_company_knowledge()
+
 if __name__ == "__main__": 
-    company_information = load_company_knowledge()
     print("######################")
     print("New Incoming Message: ")
     print("######################")
