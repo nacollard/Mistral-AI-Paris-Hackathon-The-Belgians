@@ -15,11 +15,10 @@ export async function POST(request) {
     });
 
     let info = await transporter.sendMail({
-        from: '"Multi Agent" <nathancollard1@gmail.com>',  // sender address
+        from: '"Multi Agent App" <nathancollard1@gmail.com>',  // sender address
         to: "ncollard@openblackbox.be",  // list of receivers
         subject: req.subject,  // Subject line
-        text: "Hello this is a pure text",  // plain text body
-        html: `<b>Just a text</b>`,  // HTML body content
+        html: "<h2><b>Priority Level: </b></h2>" + req.content.priority_level + "<br><br>" + "<h2><b>People concerned: </b></h2>" + req.content.employees_to_inform.join(", ") + "<br><br>" + "<h2><b>Main Topic: </b></h2>" + req.content.main_topic + "<br><br>" + "<h2><b>Explanation: </b></h2>" + req.content.justification + "<br>",  // HTML body content
     });
 
     res.status(200).json({ message: 'Email sent successfully!' });

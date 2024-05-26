@@ -3,13 +3,13 @@
 import { useState, useEffect, useRef } from 'react';
 
 export default function Home() {
-  const [waiting, setWaiting] = useState([['New AI technology promises to revolutionize the IT industry', 'A new and highly advanced artificial intelligence (AI) technology has been unveiled by a leading tech company, and experts and analysts are predicting that it will have a major and transformative impact on the IT industry.', 'news'],]);
+  const [waiting, setWaiting] = useState([['New AI technology promises to revolutionize the IT industry', 'A new tax law has been proposed by the French government, and it aims to encourage and support the growth of startups and small businesses in the country, by providing them with a number of tax incentives, benefits, and reliefs. The new tax law, which is known as the "Startup and SME Tax Law", will apply to all startups and small and medium-sized enterprises (SMEs) that are registered and operating in France, and will come into effect on January 1, 2023, if it is approved and enacted by the French parliament. According to the new tax law, startups and SMEs in France will be eligible for the following tax incentives, benefits, and reliefs: * A reduction in the corporate income tax rate, from the current rate of 28% to a new rate of 25%, for all startups and SMEs that have a turnover of less than 50 million euros per year. * A reduction in the value-added tax (VAT) rate, from the current rate of 20% to a new rate of 10%, for all startups and SMEs that are engaged in the provision of certain types of goods and services, such as food, beverages, and accommodation. * An exemption from the payment of the social security contributions, for all startups and SMEs that hire and employ new and additional employees, for a period of up to two years. The new tax law is expected to have a significant and positive impact on the way of working of startups and SMEs in France, and to contribute to the improvement of their competitiveness, growth, and innovation.', 'news'],]);
   const [found, setFound] = useState(false);
   const [urgency, setUrgency] = useState('low');
   const [dataQueue, setDataQueue] = useState([
-    ['The future of AI in the IT industry', 'Artificial intelligence (AI) is a rapidly evolving field that is poised to have a major impact on the IT industry. In this article, we take a look at some of the key trends and developments that are shaping the future of AI in IT.', 'law'],
-    ['How AI is changing the face of the IT industry', 'Artificial intelligence (AI) is revolutionizing the IT industry, with a wide range of applications that are transforming the way businesses operate. In this article, we explore some of the ways that AI is changing the face of the IT industry.', 'social'],
-    ['The rise of AI in the IT industry', 'Artificial intelligence (AI) is becoming increasingly important in the IT industry, with a growing number of companies using AI technologies to improve their operations and drive innovation. In this article, we take a look at some of the key trends and developments that are shaping the rise of AI in the IT industry.', 'news'],
+    ['New competition and antitrust law in France', 'The French government has enacted a new competition and antitrust law, which will come into effect on January 1, 2024. The new law aims to ensure the fairness, transparency, and integrity of the market and the economy in France, and to promote the growth, competitiveness, and innovation of businesses and organizations in the country and around the world. Some of the key provisions of the new competition and antitrust law in France are: * An introduction of a new merger and acquisition (M&A) control and approval process, for all businesses and organizations in France, that are involved in or plan to be involved in a M&A transaction, and that meet the eligibility and compliance criteria. * An enhancement of the market dominance and abuse of dominance rules and procedures, with a reduction in the number of market dominance categories, from the current four categories to a new three categories, and an increase in the market dominance transparency and predictability targets, from the current minimum of 70% to a new minimum of 90%, for all businesses and organizations in France. * An encouragement of the price and discount competition, with an introduction of a new price and discount competition label, for all products, services, and companies in France, that are designed, developed, or used for the purpose of promoting, facilitating, or supporting price and discount competition, and that meet the eligibility and compliance criteria. The new competition and antitrust law in France will have a significant and far-reaching impact on the way of working of businesses and organizations in the country and around the world, and will require them to adapt and adjust their market position, growth, innovation, and other practices and policies, to ensure their compliance and competitiveness.', 'law'],
+    ['New Tweet', "I'm proud to be a part of the #FrenchTech ecosystem, and to see the launch of a new #FrenchTech label and certification, which will help businesses and organizations in France, and around the world, to choose and use the best and most reliable #FrenchTech products and services.Who will be next ? #FrenchTech", 'social'],
+    // ['The rise of AI in the IT industry', 'Artificial intelligence (AI) is becoming increasingly important in the IT industry, with a growing number of companies using AI technologies to improve their operations and drive innovation. In this article, we take a look at some of the key trends and developments that are shaping the rise of AI in the IT industry.', 'news'],
     []
   ]);
   const [responseData, setResponseData] = useState(null);
@@ -31,20 +31,17 @@ export default function Home() {
       const result = await response.json();
       setResponseData(result);
 
-      const urgencies = ['high', 'medium', 'low'];
-      const randomIndex = Math.floor(Math.random() * urgencies.length);
-      const randomUrgency = urgencies[randomIndex];
-      setUrgency(randomUrgency);
+      setUrgency(result.priority_level.toLowerCase());
 
-      if (randomUrgency == 'high') {
+      if (result.priority_level.toLowerCase() == 'high') {
         await fetch('/api/email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            subject: 'Multi Agent App',
-            content: JSON.stringify(result),
+            subject: 'High Priority Alert!',
+            content: result
           }),
         });
       }
@@ -54,7 +51,7 @@ export default function Home() {
       setTimeout(() => {
         setWaiting(prev => prev.filter((item, index) => index != 0));
         setFound(false);
-      }, 3000);
+      }, 5000);
     } catch (error) {
       console.error('Failed to fetch data from API:', error);
     }
@@ -86,19 +83,6 @@ export default function Home() {
     }
   }, [waiting[0]]);
 
-  const handleIconClick = (itemIndex) => {
-    const urgencies = ['high', 'medium', 'low'];
-    const randomIndex = Math.floor(Math.random() * urgencies.length);
-    const randomUrgency = urgencies[randomIndex];
-    setUrgency(randomUrgency);
-    setFound(true);
-
-    setTimeout(() => {
-      setWaiting(prev => prev.filter((item, index) => index != itemIndex));
-      setFound(false);
-    }, 3000);
-  };
-
   return (
     <main className="container mx-auto flex flex-col-reverse justify-center items-center gap-6">
       {found &&
@@ -106,21 +90,21 @@ export default function Home() {
           {urgency == 'low' &&
             <div role="alert" className="alert alert-info text-white">
               <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              <span>Mail (non-urgent) sent to julie@example.com</span>
+              <span>Low importance</span>
             </div>
           }
 
           {urgency == 'medium' &&
             <div role="alert" className="alert alert-success text-white">
               <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              <span>Mail sent to julie@example.com</span>
+              <span>Medium importance</span>
             </div>
           }
 
           {urgency == 'high' &&
             <div role="alert" className="alert alert-error text-white">
               <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              <span>Mail (urgent) sent to julie@example.com</span>
+              <span>High importance! Mail sent to mlouis@openblackbox.be</span>
             </div>
           }
         </div>
@@ -142,21 +126,24 @@ export default function Home() {
           </div>
           <div className={`card w-96 bg-white shadow-sm transition-all duration-300 ease-in-out ${index == 0 ? 'scale-105 shadow-2xl mb-4' : 'scale-100 shadow-none'}`}>
             <div className="group card-body py-4 gap-0">
-              <h2 className="card-title text-center">{item[0]}</h2>
-              <p className={`text-justify ${index == 0 ? 'max-h-56 opacity-100 mt-2' : ' max-h-0 opacity-0 mt-0'} transition-all delay-300 ease-linear`}>{item[1]}</p>
+              <h2 className={`card-title text-center ${index == 0 ? 'text-xl' : 'text-sm'}`}>{item[0]}</h2>
+              <p className={`text-justify ${index === 0 ? 'max-h-56 opacity-100 mt-2' : 'max-h-0 opacity-0 mt-0'} transition-all delay-300 ease-linear`}>
+                {item[1] && item[1].length > 100 ? `${item[1].substring(0, 150)}...` : item[1]}
+              </p>
             </div>
           </div>
           <div className={`card p-4 justify-center items-center ${found && index == 0 ? 'bg-white' : 'bg-white'} shadow-sm flex space-x-4 ${index == 0 ? 'scale-105 ml-4 mb-4' : 'scale-100'}`}>
             {(index != 0 || !found) &&
               <span className={`loading loading-dots loading-md ${index == 0 ? 'text-secondary' : ''}`}></span>
             }
-            {found && index == 0 &&
-              <div className="avatar">
+            <div className="avatar-group -space-x-6 rtl:space-x-reverse">
+              {found && index == 0 && responseData.employees_to_inform.map((item, index) => (<div className="avatar">
                 <div className=" w-8 rounded-full ring ring-success ring-offset-base-100 ring-offset-2">
                   <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
                 </div>
               </div>
-            }
+              ))}
+            </div>
           </div>
         </div>
       ))}
