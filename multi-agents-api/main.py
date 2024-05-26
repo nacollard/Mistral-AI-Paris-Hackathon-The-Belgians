@@ -11,7 +11,7 @@ def run_python():
     data = request.json
     
     news_article1 = data[0] + " " + data[1]
-    employees_to_inform, priority_level, main_topic, context, justification, type = analyst_agent(news_article1, "news article")
+    employees_to_inform, priority_level, main_topic, context, justification, type = analyst_agent(news_article1, data[2])
     
     return jsonify({
         "employees_to_inform": employees_to_inform,
